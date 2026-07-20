@@ -1,11 +1,10 @@
-# card-reader
+# Card reader
 
-Real-time playing card recognition from a webcam. A YOLO11s detector, fine-tuned
-on a fully synthetic dataset generated from photos of one physical deck, reads
-the corner index (rank + suit) of cards on the table and emits JSON events.
+Real-time playing card recognition from a webcam. A YOLO11s detector, fine-tuned on a fully synthetic dataset generated from photos of one physical deck, reads the corner index (rank + suit) of cards on the table and emits JSON events.
 
-No hand-labeled data: bounding boxes come for free because the dataset
-generator composites card images with known geometry.
+![Live demo: cards recognized in real time](showcase.gif)
+
+No hand-labeled data: bounding boxes come for free because the dataset generator composites card images with known geometry.
 
 ## How it works
 
@@ -43,13 +42,7 @@ pip install -r requirements.txt
 python reader.py   # needs models/playing_cards_custom.pt, see below
 ```
 
-With several cameras attached, the reader window gets a "Camera" dropdown
-(top-right) — click it to switch feeds live. `--camera 2` sets the starting
-camera. `capture.py` uses an interactive picker instead (SPACE = next,
-ENTER = select), same `--camera` flag to skip it.
-
-```bash
-```
+With several cameras attached, the reader window gets a "Camera" dropdown (top-right) — click it to switch feeds live. `--camera 2` sets the starting camera. `capture.py` uses an interactive picker instead (SPACE = next, ENTER = select), same `--camera` flag to skip it.
 
 ## Dataset & weights
 
@@ -71,20 +64,11 @@ ENTER = select), same `--camera` flag to skip it.
 !yolo detect train model=yolo11s.pt data=dataset/data.yaml epochs=60 imgsz=640
 ```
 
-Download `runs/detect/train/weights/best.pt`, copy it to
-`models/playing_cards_custom.pt`. Tip: mount Google Drive and add
-`project=/content/drive/MyDrive/card-reader` so checkpoints survive runtime
-disconnects (resume with `yolo detect train resume model=.../weights/last.pt`).
+Download `runs/detect/train/weights/best.pt`, copy it to `models/playing_cards_custom.pt`. Tip: mount Google Drive and add `project=/content/drive/MyDrive/card-reader` so checkpoints survive runtime disconnects (resume with `yolo detect train resume model=.../weights/last.pt`).
 
 ## Known limitations
 
-The model is only as general as the synthetic data. It performs well in
-conditions matching the training distribution (this deck, dark table surface,
-roughly top-down camera, cards 25–65 % of frame height) and degrades on
-unseen surfaces, shallow/oblique camera angles, and small/distant cards.
-Tens are the weakest rank (two-glyph index). To adapt: capture new
-backgrounds and sharper card frames, widen the augmentation ranges in
-`generate_dataset.py`, regenerate, retrain.
+The model is only as general as the synthetic data. It performs well in conditions matching the training distribution (this deck, dark table surface, roughly top-down camera, cards 25–65 % of frame height) and degrades on unseen surfaces, shallow/oblique camera angles, and small/distant cards. Tens are the weakest rank (two-glyph index). To adapt: capture new backgrounds and sharper card frames, widen the augmentation ranges in `generate_dataset.py`, regenerate, retrain.
 
 ## Credits
 
