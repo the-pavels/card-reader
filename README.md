@@ -43,6 +43,14 @@ pip install -r requirements.txt
 python reader.py   # needs models/playing_cards_custom.pt, see below
 ```
 
+With several cameras attached, the reader window gets a "Camera" dropdown
+(top-right) — click it to switch feeds live. `--camera 2` sets the starting
+camera. `capture.py` uses an interactive picker instead (SPACE = next,
+ENTER = select), same `--camera` flag to skip it.
+
+```bash
+```
+
 ## Dataset & weights
 
 - **Dataset** (`dataset.zip`, ~370 MB): attached to the GitHub Release —

@@ -1,3 +1,4 @@
+import argparse
 import json
 import time
 from collections import Counter, deque
@@ -6,8 +7,10 @@ import cv2
 import torch
 from ultralytics import YOLO
 
+from camera_picker import CameraDropdown, probe_cameras
 
-CAMERA_INDEX = 2
+
+WINDOW = "Card reader"
 MODEL_PATH = "models/playing_cards_custom.pt"
 DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
 CONF_THRESHOLD = 0.40
@@ -59,12 +62,25 @@ def emit_card_event(card, confidence):
 
 
 def main():
-    camera = cv2.VideoCapture(CAMERA_INDEX)
+    parser = argparse.ArgumentParser(description="Real-time playing card reader.")
+    parser.add_argument(
+        "--camera",
+        type=int,
+        default=None,
+        help="initial camera index (switchable live via the Camera dropdown)",
+    )
+    args = parser.parse_args()
 
-    if not camera.isOpened():
-        raise RuntimeError(
-            "Could not open camera. Try CAMERA_INDEX values 0, 1, 2, or 3."
-        )
+    cameras = probe_cameras()
+
+    if not cameras:
+        raise RuntimeError("No working cameras found.")
+
+    position = cameras.index(args.camera) if args.camera in cameras else 0
+    camera = cv2.VideoCapture(cameras[position])
+    cv2.namedWindow(WINDOW)
+
+    dropdown = CameraDropdown(WINDOW, cameras, position) if len(cameras) > 1 else None
 
     history = deque(maxlen=VOTE_WINDOW)
     latest_confidence = {}
@@ -72,6 +88,13 @@ def main():
     last_emitted_at = 0.0
 
     while True:
+        if dropdown is not None and dropdown.position != position:
+            position = dropdown.position
+            camera.release()
+            camera = cv2.VideoCapture(cameras[position])
+            history.clear()  # votes from the previous feed are meaningless
+            continue
+
         ok, frame = camera.read()
 
         if not ok:
@@ -126,7 +149,10 @@ def main():
             2,
         )
 
-        cv2.imshow("Card reader", frame)
+        if dropdown is not None:
+            dropdown.draw(frame)
+
+        cv2.imshow(WINDOW, frame)
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break

@@ -9,12 +9,14 @@ Keys: SPACE = burst for current card, S = skip card, B = background shot,
 Q = quit (progress is kept, rerun to continue).
 """
 
+import argparse
 import time
 from pathlib import Path
 
 import cv2
 
-CAMERA_INDEX = 1
+from camera_picker import pick_camera
+
 FRAMES_PER_BURST = 20
 BURST_SECONDS = 6.0
 
@@ -27,13 +29,22 @@ BACKGROUNDS_DIR = Path("backgrounds")
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Capture training frames of a deck.")
+    parser.add_argument(
+        "--camera",
+        type=int,
+        default=None,
+        help="camera index; omit to pick interactively",
+    )
+    args = parser.parse_args()
+
     CAPTURES_DIR.mkdir(exist_ok=True)
     BACKGROUNDS_DIR.mkdir(exist_ok=True)
 
     todo = [c for c in CARDS if len(list((CAPTURES_DIR / c).glob("*.jpg"))) < FRAMES_PER_BURST]
     print(f"{len(CARDS) - len(todo)} cards already captured, {len(todo)} to go.")
 
-    camera = cv2.VideoCapture(CAMERA_INDEX)
+    camera = cv2.VideoCapture(pick_camera(args.camera))
 
     if not camera.isOpened():
         raise RuntimeError("Could not open camera.")
