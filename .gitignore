@@ -1,0 +1,25 @@
+# Environment
+.venv/
+__pycache__/
+.claude/
+.DS_Store
+
+# Generated dataset — published as a GitHub Release asset (dataset.zip), not committed
+dataset/
+dataset.zip
+
+# Raw capture footage — cards/ holds the extracted assets, captures/ stays local
+captures/
+
+# Personal benchmark photos
+references/
+
+# Auto-downloaded base checkpoint (Ultralytics fetches it on demand)
+yolo11s.pt
+
+# Third-party HF models — linked in README instead of redistributed
+models/playing_cards_yolo11s.pt
+models/playing_cards_yolov8n.pt
+
+# Training output
+runs/
