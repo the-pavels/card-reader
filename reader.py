@@ -3,11 +3,13 @@ import time
 from collections import Counter, deque
 
 import cv2
+import torch
 from ultralytics import YOLO
 
 
-CAMERA_INDEX = 1
+CAMERA_INDEX = 2
 MODEL_PATH = "models/playing_cards_custom.pt"
+DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
 CONF_THRESHOLD = 0.40
 VOTE_WINDOW = 6
 VOTES_REQUIRED = 4
@@ -24,7 +26,7 @@ def recognize_cards(frame):
     the model detects both corner glyphs, so the winner is picked by
     summing confidence per card — two honest corners outvote one ghost box.
     """
-    result = model(frame, conf=CONF_THRESHOLD, verbose=False)[0]
+    result = model(frame, conf=CONF_THRESHOLD, device=DEVICE, verbose=False)[0]
 
     votes = Counter()
     confidence_by_card = {}

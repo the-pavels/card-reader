@@ -23,3 +23,7 @@ models/playing_cards_yolov8n.pt
 
 # Training output
 runs/
+
+# Export artifacts (regenerable via yolo export)
+models/*.onnx
+models/*.mlpackage
